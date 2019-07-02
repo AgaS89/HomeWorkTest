@@ -1,0 +1,98 @@
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.testng.Assert;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
+
+import java.util.concurrent.TimeUnit;
+
+public class Zendesk {
+
+    @BeforeTest
+    public void addDriver(){
+        //Set path to Firefox driver on your PC
+        String driverPath = "C:\\Users\\Aga\\IdeaProjects\\KursSelenium\\src\\main\\executables\\drivers\\geckodriver.exe";
+        System.setProperty("webdriver.gecko.driver", driverPath);
+    }
+
+    @Test
+    public void zendeskFrontEndTest() {
+
+        WebDriver driver = new FirefoxDriver();
+        driver.get("https://core.futuresimple.com/users/login");
+
+        //log in site
+        WebElement login = driver.findElement(By.id("user_email"));
+        login.sendKeys("agnieszka.cn121@gmail.com");
+        WebElement password = driver.findElement(By.id("user_password"));
+        password.sendKeys("TestZen");
+        WebElement btnLogin = driver.findElement(By.className("login-button"));
+        btnLogin.click();
+
+        //wait for site
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+
+
+        WebElement btnAdd = driver.findElement(By.xpath("//*[contains(@class, '_1AM--Button--Button Qul--fonts--regular_m vz7--fonts--regular _2RL--keyboardMode--outlineWhenFocused   _1Vg--GlobalAdd--GlobalAdd')]"));
+        btnAdd.click();
+
+        //add new Lead
+        WebElement lead = driver.findElement(By.xpath("//*[contains(@class, '_2gD--Ellipsis--Ellipsis _3BJ--Item--label')]"));
+        lead.click();
+        WebElement firstName = driver.findElement(By.xpath("//input[@placeholder='First Name']"));
+        firstName.sendKeys("TestUser");
+
+        WebElement lastName = driver.findElement(By.xpath("//input[@placeholder='Last Name']"));
+        lastName.sendKeys("LastName");
+
+        WebElement btnAddNewLead = driver.findElement(By.cssSelector("[data-action='save-and-visit']"));
+        btnAddNewLead.click();
+
+        //check Lead status - assert
+        WebElement leadStatus = driver.findElement(By.xpath("//span[@class='lead-status']"));
+        leadStatus.getText();
+        Assert.assertEquals(leadStatus.getText(), "New");
+
+        //click 'settings'
+        WebElement userSettings = driver.findElement(By.xpath("//span[@class='avatar-container']"));
+        userSettings.click();
+        WebElement settings = driver.findElement(By.xpath("//a[@href='/settings/profile']"));
+        settings.click();
+
+        //click 'lead'
+        WebElement btnLead = driver.findElement(By.xpath("//a[@href='/settings/leads']"));
+        btnLead.click();
+
+        //change 'lead status'
+        WebElement btnLeadStatus = driver.findElement(By.xpath("//a[@href='#lead-status']"));
+        btnLeadStatus.click();
+
+        WebElement btnNameLead = driver.findElement(By.cssSelector("#lead-status > div:nth-child(2) > span:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > span:nth-child(1) > button:nth-child(1)"));
+        btnNameLead.click();
+
+        //change name
+        WebElement changeNameLead = driver.findElement(By.cssSelector("div.form:nth-child(1) > form:nth-child(1) > fieldset:nth-child(1) > div:nth-child(2) > div:nth-child(2) > input:nth-child(1)"));
+        changeNameLead.click();
+        changeNameLead.clear();
+        changeNameLead.sendKeys("Finished");
+
+        //save new name
+        WebElement btnSave = driver.findElement(By.cssSelector("div.form:nth-child(1) > form:nth-child(1) > fieldset:nth-child(1) > div:nth-child(3) > div:nth-child(1) > button:nth-child(1)"));
+        btnSave.click();
+
+        //check name changed
+        WebElement checkNewDataLead = driver.findElement(By.xpath("//a[@href='/working/leads']"));
+        checkNewDataLead.click();
+        WebElement clickNameLead = driver.findElement(By.cssSelector("div.NUZ--IndexItemRow--IndexItemRow:nth-child(2) > div:nth-child(2) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > a:nth-child(1) > div:nth-child(1) > span:nth-child(1)"));
+        clickNameLead.click();
+
+        //refresh site
+        driver.navigate().refresh();
+        WebElement leadStatusNew = driver.findElement(By.xpath("//span[@class= 'lead-status']"));
+        leadStatusNew.getText();
+        Assert.assertEquals(leadStatusNew.getText(), "Finished");
+    }
+}
+
